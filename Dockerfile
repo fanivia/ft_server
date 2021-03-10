@@ -10,23 +10,14 @@
 #                                                                              #
 # **************************************************************************** #
 
-FROM alpine:3.13.2
+FROM alpine:3.12.2
 RUN apk update && apk upgrade
-RUN apk add vim
 RUN apk add nginx
-
 RUN apk add openssl
+COPY ./srcs/nginx.conf /etc/nginx/conf.d/default.conf
 
-RUN apk add wget
-RUN mkdir /var/www/fanivia
-RUN mkdir /etc/nginx/ssl
-RUN openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout /etc/nginx/ssl/ssl.key -out /etc/nginx/ssl/ssl.pem -subj "/C=RF/ST=Moscow/L=Moscow/O=school21/OU=fanivia/CN=my_domain"
-WORKDIR /var/www/fanivia
-COPY srcs/ .
-
-
-
-RUN mv nginx.conf /etc/nginx/sites-available/default
-RUN chmod +x *.sh
+RUN openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout /etc/ssl/private/nginx-selfsigned.key -out /etc/ssl/private/nginx-selfsigned.pem -subj "/C=RF/ST=Moscow/L=Moscow/O=school21/OU=fanivia/CN=my_domain"
+COPY ./srcs/init.sh /tmp/
+RUN chmod +x /tmp/init.sh
 EXPOSE 80 443
-CMD ["bash", "init.sh"]
+CMD ["/tmp/init.sh"]

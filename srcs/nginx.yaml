@@ -1,12 +1,11 @@
-apiVersion: batch/v1
-kind: Job
+apiVersion: v1
+kind: Pod
 metadata:
   name: nginx
+  labels:
+    app: nginx
 spec:
-  template:
-    # This is the pod template
-    spec:
-      containers:
-        - name: nginx
-          image: nginx_image
-    # The pod template ends here
+  containers:
+    - name: nginx
+      image: nginx_image
+      imagePullPolicy: Never
