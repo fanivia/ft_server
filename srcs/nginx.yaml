@@ -1,11 +1,52 @@
 apiVersion: v1
-kind: Pod
+kind: Service
 metadata:
+  name: nginx-svc
+spec:
+  selector:
+    app: nginx
+  type: LoadBalancer
+  # необходимо также присваивать IP адрес,
+  # по которому под связывается с внешним миром
+  # через команду loadBalancerIP: <IP адрес из пула адресов
+  # который выдает тебе metallb>
+  loadBalancerIP: 192.168.1.245
+  # чтобы связать Service и Deployment тебе необходимо
+  # через selector свяать его по labels, иначе связки
+  # не произойдет. Синтаксический анализатор yaml файла
+  # yamllint, на маке можно использовать для этого brew
+
+  selector:
+    app: nginx
+  ports:
+    - name: http
+      protocol: TCP
+      port: 80
+      targetPort: 80
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  # name: nginx-deployment
   name: nginx
   labels:
     app: nginx
 spec:
-  containers:
-    - name: nginx
-      image: nginx_image
-      imagePullPolicy: Never
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: nginx
+  template: # описание pod к которому привязан Deployment
+    metadata:
+      labels:
+        app: nginx
+    spec:
+      containers:
+        - name: nginx
+          image: nginx-image
+          imagePullPolicy: Never
+          ports:
+          - containerPort: 80
+            name: http
