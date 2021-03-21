@@ -1,6 +1,7 @@
 #!/bin/sh
 # docker build -t nginx_image .
 # kubectl delete pods nginx
+eval $(minikube docker-env)
 minikube delete
 minikube start --cpus 2
 kubectl apply -f https://raw.githubusercontent.com/metallb/metallb/v0.9.5/manifests/namespace.yaml #
